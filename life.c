@@ -155,6 +155,16 @@ show_visible_grid (int **g)
 static
 inline
 void
+swap_grids (int ***from, int ***to)
+{
+  int **swap = *from;
+  *from = *to;
+  *to = swap;
+}
+
+static
+inline
+void
 help_message (int opt)
 {
   fprintf (stderr,
@@ -228,12 +238,7 @@ main (int argc, char *argv[])
 
       update_visible_grid (from, to);
 
-      {
-	int **swap = from;
-	from = to;
-	to = swap;
-      }
-
+      swap_grids (&from, &to);
     }
 
   return 0;
