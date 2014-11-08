@@ -184,24 +184,23 @@ help_message (int opt)
            progname);
   fprintf (stderr, "\n");
   fprintf (stderr,
-           "    -s micro-seconds   sleep between updates (default %d)\n",
+           "    -s micro-seconds sleep between updates (default %d)\n",
            default_sleep_update_us);
   fprintf (stderr,
-           "    -n iterations      how many times to update (default %d)\n",
-           default_iterations);
+           "    -n iterations    update how many times (default forever)\n");
+           fprintf (stderr,
+           "    -h               this help message\n");
   fprintf (stderr,
-           "    -h                 this help message\n");
-  fprintf (stderr,
-           "    -y y_size          height of grid (default %d)\n",
+           "    -y y_size        height of grid (default %d)\n",
            default_visible_y);
   fprintf (stderr,
-           "    -x x_size          width of grid (default %d)\n",
+           "    -x x_size        width of grid (default %d)\n",
            default_visible_x);
   fprintf (stderr,
-           "    -a alive-char      alive cells show this (default '%c')\n",
+           "    -a alive-char    alive cells show this (default '%c')\n",
            default_live_cell);
   fprintf (stderr,
-           "    -d dead-char       dead cells show this (default '%c')\n",
+           "    -d dead-char     dead cells show this (default '%c')\n",
            default_dead_cell);
   fprintf (stderr, "\n");
 }
