@@ -6,14 +6,14 @@
 #include <libgen.h>
 
 static const useconds_t default_sleep_update_us = 1e5;  /* micro-seconds */
-static const int default_iterations = -1;  /* update, and update... */
+static const unsigned long default_iterations = -1;  /* update, and update... */
 static const int default_visible_y = 60;
 static const int default_visible_x = 140;
 static const char default_live_cell = '*';
 static const char default_dead_cell = ' ';
 
 static useconds_t sleep_update_us;
-static useconds_t iterations;
+static unsigned long iterations;
 static int visible_y;
 static int visible_x;
 static char live_cell;
@@ -210,7 +210,7 @@ int
 main (int argc, char *argv[])
 {
   int opt;
-  int iter;
+  unsigned long iter;
 
   int **old_grid;
   int **new_grid; /* current and new grid generation */
