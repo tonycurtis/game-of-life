@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdbool.h>
 #include <time.h>
 #include <string.h>
 #include <libgen.h>
 
 static const useconds_t default_sleep_update_us = 1e5;  /* micro-seconds */
+static const int default_iterations = -1;  /* update, and update... */
 static const int default_visible_y = 60;
 static const int default_visible_x = 140;
 static const char default_live_cell = '*';
 static const char default_dead_cell = ' ';
 
 static useconds_t sleep_update_us;
+static useconds_t iterations;
 static int visible_y;
 static int visible_x;
 static char live_cell;
@@ -154,7 +155,6 @@ show_visible_grid (int **g)
 
   for (y = 1; y < grid_y - 1; y += 1)
     {
-      printf ("    ");
       for (x = 1; x < grid_x - 1; x += 1)
         {
           printf ("%c", g[y][x] ? live_cell : dead_cell);
@@ -184,6 +184,12 @@ help_message (int opt)
            progname);
   fprintf (stderr, "\n");
   fprintf (stderr,
+           "    -s micro-seconds   sleep between updates (default %d)\n",
+           default_sleep_update_us);
+  fprintf (stderr,
+           "    -n iterations      how many times to update (default %d)\n",
+           default_iterations);
+  fprintf (stderr,
            "    -h                 this help message\n");
   fprintf (stderr,
            "    -y y_size          height of grid (default %d)\n",
@@ -191,9 +197,6 @@ help_message (int opt)
   fprintf (stderr,
            "    -x x_size          width of grid (default %d)\n",
            default_visible_x);
-  fprintf (stderr,
-           "    -s micro-seconds   sleep between updates (default %d)\n",
-           default_sleep_update_us);
   fprintf (stderr,
            "    -a alive-char      alive cells show this (default '%c')\n",
            default_live_cell);
@@ -207,6 +210,7 @@ int
 main (int argc, char *argv[])
 {
   int opt;
+  int iter;
 
   int **old_grid;
   int **new_grid; /* current and new grid generation */
@@ -217,16 +221,20 @@ main (int argc, char *argv[])
   progname = basename (argv[0]);
 
   sleep_update_us = default_sleep_update_us;
+  iterations = default_iterations;
   visible_y = default_visible_y;
   visible_x = default_visible_x;
   live_cell = default_live_cell;
   dead_cell = default_dead_cell;
 
-  while ((opt = getopt (argc, argv, "s:y:x:ha:d:")) != -1)
+  while ((opt = getopt (argc, argv, "s:n:y:x:ha:d:")) != -1)
     {
       switch (opt) {
       case 's':
         sleep_update_us = atoi (optarg);
+        break;
+      case 'n':
+        iterations = atoi (optarg);
         break;
       case 'y':
         visible_y = atoi (optarg);
@@ -268,7 +276,7 @@ main (int argc, char *argv[])
   // beacon_grid (from);
   // load_visible_grid ("glider.life", from);
 
-  while (true)
+  for (iter = 0; iter != iterations; iter += 1)
     {
       system ("clear");  /* should we use curses or similar here? */
 
