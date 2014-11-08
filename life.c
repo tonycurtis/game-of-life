@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <string.h>
+#include <libgen.h>
 
 /**
  * currently global full grid size (but shouldn't be global, really)
@@ -12,9 +13,15 @@ static int grid_y;
 static int grid_x;
 
 /**
+ * who I am
+ */
+static char *progname;
+
+/**
  * allocate memory for an entire grid
  */
 static
+inline
 int **
 allocate_grid (void)
 {
@@ -34,6 +41,7 @@ allocate_grid (void)
  * initialize a grid to completely dead
  */
 static
+inline
 void
 zero_grid (int **g)
 {
@@ -52,6 +60,7 @@ zero_grid (int **g)
  * randomly (and fairly sparsely) populate a grid
  */
 static
+inline
 void
 randomize_visible_grid (int **g)
 {
@@ -76,6 +85,7 @@ randomize_visible_grid (int **g)
  * to make alive, one pair per line
  */ 
 static
+inline
 void
 load_visible_grid (char *filename, int **g)
 {
@@ -94,6 +104,7 @@ load_visible_grid (char *filename, int **g)
 }
 
 static
+inline
 void
 update_visible_grid (int **old, int **new)
 {
@@ -123,6 +134,7 @@ update_visible_grid (int **old, int **new)
 }
 
 static
+inline
 void
 show_visible_grid (int **g)
 {
@@ -140,6 +152,16 @@ show_visible_grid (int **g)
   printf ("\n");
 }
 
+static
+inline
+void
+help_message (int opt)
+{
+  fprintf (stderr,
+	   "Usage: %s [-h] [-y y_size] [-x x_size] [-d micro-seconds-delay]\n",
+	   progname);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -154,7 +176,9 @@ main (int argc, char *argv[])
   int visible_x = 140;
   int opt;
 
-  while ((opt = getopt(argc, argv, "d:y:x:")) != -1)
+  progname = basename (argv[0]);
+
+  while ((opt = getopt (argc, argv, "d:y:x:h")) != -1)
     {
       switch (opt) {
       case 'd':
@@ -167,6 +191,8 @@ main (int argc, char *argv[])
 	visible_x = atoi (optarg);
 	break;
       default: /* '?' */
+	help_message (opt);
+	exit (EXIT_FAILURE);
 	break;
       }
     }
