@@ -5,12 +5,15 @@
 #include <time.h>
 #include <string.h>
 
-#define Y 60
-#define X 140
-
+/**
+ * currently global full grid size (but shouldn't be global, really)
+ */
 static int grid_y;
 static int grid_x;
 
+/**
+ * allocate memory for an entire grid
+ */
 static
 int **
 allocate_grid (void)
@@ -27,6 +30,9 @@ allocate_grid (void)
   return g;
 }
 
+/**
+ * initialize a grid to completely dead
+ */
 static
 void
 zero_grid (int **g)
@@ -42,6 +48,9 @@ zero_grid (int **g)
     }
 }
 
+/**
+ * randomly (and fairly sparsely) populate a grid
+ */
 static
 void
 randomize_visible_grid (int **g)
@@ -59,6 +68,13 @@ randomize_visible_grid (int **g)
     }
 }
 
+/**
+ * read in a grid population from a file.  Format
+ *
+ * Y X
+ *
+ * to make alive, one pair per line
+ */ 
 static
 void
 load_visible_grid (char *filename, int **g)
@@ -128,30 +144,57 @@ int
 main (int argc, char *argv[])
 {
   int **old_grid;
-  int **new_grid;
+  int **new_grid; /* current and new grid generation */
+
   int **from;
-  int **to;
+  int **to; /* double-buffer */
 
-  useconds_t delay = 1e5;
+  useconds_t delay = 1e5;  /* micro-seconds wait between screen updates */
+  int visible_y = 60;
+  int visible_x = 140;
+  int opt;
 
-  grid_y = Y + 2;
-  grid_x = X + 2;
+  while ((opt = getopt(argc, argv, "d:y:x:")) != -1)
+    {
+      switch (opt) {
+      case 'd':
+	delay = atoi (optarg);
+	break;
+      case 'y':
+	visible_y = atoi (optarg);
+	break;
+      case 'x':
+	visible_x = atoi (optarg);
+	break;
+      default: /* '?' */
+	break;
+      }
+    }
+
+  /**
+   * full grid has a dead border
+   */
+  grid_y = visible_y + 2;
+  grid_x = visible_x + 2;
 
   old_grid = allocate_grid();
-  from = old_grid;
-
   new_grid = allocate_grid();
+
+  from = old_grid;
   to = new_grid;
 
   zero_grid (from);
 
-  // randomize_visible_grid (from);
+  /**
+   * allow user to choose how to initialize in future
+   */
+  randomize_visible_grid (from);
   // beacon_grid (from);
-  load_visible_grid ("glider.life", from);
+  // load_visible_grid ("glider.life", from);
 
   while (true)
     {
-      system ("clear");
+      system ("clear");  /* should we use curses or similar here? */
 
       show_visible_grid (from);
 
