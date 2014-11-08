@@ -13,6 +13,12 @@ static int grid_y;
 static int grid_x;
 
 /**
+ * what alive/dead cells look like
+ */
+static char alive_cell;
+static char dead_cell;
+
+/**
  * who I am
  */
 static char *progname;
@@ -145,7 +151,7 @@ show_visible_grid (int **g)
       printf ("    ");
       for (x = 1; x < grid_x - 1; x += 1)
 	{
-	  printf ("%c", g[y][x] ? '*' : ' ');
+	  printf ("%c", g[y][x] ? alive_cell : dead_cell);
 	}
       printf ("\n");
     }
@@ -167,38 +173,54 @@ inline
 void
 help_message (int opt)
 {
-  fprintf (stderr,
-	   "Usage: %s [-h] [-y y_size] [-x x_size] [-d micro-seconds-delay]\n",
-	   progname);
+  fprintf (stderr, "Usage: %s [options]\n", progname);
+  fprintf (stderr, "\n");
+  fprintf (stderr, "    -h                 this help message\n");
+  fprintf (stderr, "    -y y_size          height of grid\n");
+  fprintf (stderr, "    -x x_size          width of grid\n");
+  fprintf (stderr, "    -s micro-seconds   sleep between updates\n");
+  fprintf (stderr, "    -a alive-char      alive cells show this char\n");
+  fprintf (stderr, "    -d dead-char       dead cells show this char\n");
+  fprintf (stderr, "\n");
 }
 
 int
 main (int argc, char *argv[])
 {
+  int opt;
+
   int **old_grid;
   int **new_grid; /* current and new grid generation */
 
   int **from;
   int **to; /* double-buffer */
 
-  useconds_t delay = 1e5;  /* micro-seconds wait between screen updates */
+  useconds_t sleep_update = 1e5;  /* micro-seconds wait between screen updates */
   int visible_y = 60;
   int visible_x = 140;
-  int opt;
+
+  alive_cell = '*';
+  dead_cell = ' ';
 
   progname = basename (argv[0]);
 
-  while ((opt = getopt (argc, argv, "d:y:x:h")) != -1)
+  while ((opt = getopt (argc, argv, "s:y:x:ha:d:")) != -1)
     {
       switch (opt) {
-      case 'd':
-	delay = atoi (optarg);
+      case 's':
+	sleep_update = atoi (optarg);
 	break;
       case 'y':
 	visible_y = atoi (optarg);
 	break;
       case 'x':
 	visible_x = atoi (optarg);
+	break;
+      case 'a':
+	alive_cell = *optarg;
+	break;
+      case 'd':
+	dead_cell = *optarg;
 	break;
       default: /* '?' */
 	help_message (opt);
@@ -234,7 +256,7 @@ main (int argc, char *argv[])
 
       show_visible_grid (from);
 
-      usleep (delay);
+      usleep (sleep_update);
 
       update_visible_grid (from, to);
 
