@@ -1,9 +1,11 @@
 CC     = gcc
 LD     = $(CC)
-CFLAGS = -ggdb -O3 # -fopenmp
+OPENMP = -fopenmp
+CFLAGS = -ggdb -O3 $(OPENMP)
+LDFLAGS = $(OPENMP)
 
 life:	life.o
-	$(LD) -o $@ $^
+	$(LD) $(LDFLAGS) -o $@ $^
 
 .PHONY: clean
 
