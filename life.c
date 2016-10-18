@@ -39,7 +39,7 @@ static
 int **
 allocate_grid (void)
 {
-    int y, x;
+    int y;
 
     int **g = malloc (sizeof (*g) * grid_y);
 
@@ -57,9 +57,11 @@ static
 void
 zero_grid (int **g)
 {
-    int y, x;
+    int y;
 
     for (y = 0; y < grid_y; y += 1) {
+        int x;
+
         for (x = 0; x < grid_x; x += 1) {
             g[y][x] = 0;
         }
@@ -73,12 +75,14 @@ static
 void
 randomize_visible_grid (int **g)
 {
-    int y, x;
+    int y;
     const int p = rand_live_prob * 1000;
 
     srand (time (NULL) + getpid ());
 
     for (y = 1; y < grid_y - 1; y += 1) {
+        int x;
+
         for (x = 0; x < grid_x; x += 1) {
             g[y][x] = (rand () % 1000) > p ? 1 : 0;
         }
@@ -114,10 +118,12 @@ inline
 void
 update_visible_grid (int **old, int **new)
 {
-    int y, x;
+    int y;
 
-#pragma omp parallel for private(x)
+#pragma omp parallel for
     for (y = 1; y < grid_y - 1; y += 1) {
+        int x;
+
         for (x = 1; x < grid_x - 1; x += 1) {
             /* add up neighbors from above, self, and below */
             const int prn = old[y-1][x-1] + old[y-1][x] + old[y-1][x+1];
@@ -125,10 +131,10 @@ update_visible_grid (int **old, int **new)
             const int nrn = old[y+1][x-1] + old[y+1][x] + old[y+1][x+1];
             const int n = prn + srn + nrn;
 
-            if (old[y][x]) {    /* currently alive */
+            if (old[y][x]) {    /* currently alive, 2-3 neighbors stay alive */
                 new[y][x] = ((n == 2) || (n == 3)) ? 1 : 0;
             }
-            else {              /* currently dead */
+            else {              /* currently dead, 3 neighbors come alive */
                 new[y][x] = (n == 3) ? 1 : 0;
             }
         }
@@ -140,9 +146,11 @@ inline
 void
 show_visible_grid (int **g)
 {
-    int y, x;
+    int y;
 
     for (y = 1; y < grid_y - 1; y += 1) {
+        int x;
+
         for (x = 1; x < grid_x - 1; x += 1) {
             printf ("%c", g[y][x] ? live_cell : dead_cell);
         }
