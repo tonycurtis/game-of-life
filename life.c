@@ -55,7 +55,7 @@ allocate_grid (void)
  */
 static
 void
-zero_grid (int **g)
+zero_full_grid (int **g)
 {
     int y;
 
@@ -83,7 +83,7 @@ randomize_visible_grid (int **g)
     for (y = 1; y < grid_y - 1; y += 1) {
         int x;
 
-        for (x = 0; x < grid_x; x += 1) {
+        for (x = 1; x < grid_x - 1; x += 1) {
             g[y][x] = (rand () % 1000) > p ? 1 : 0;
         }
     }
@@ -100,7 +100,7 @@ static
 void
 load_visible_grid (char *filename, int **g)
 {
-    FILE *fp = fopen (filename, "r");
+    FILE *fp = fopen (filename, "r"); /* unchecked */
     char buf[64];
 
     while (fgets (buf, sizeof (buf) - 1, fp) != NULL) {
@@ -144,14 +144,14 @@ update_visible_grid (int **old, int **new)
 static
 inline
 void
-show_visible_grid (int **g)
+show_full_grid (int **g)
 {
     int y;
 
-    for (y = 1; y < grid_y - 1; y += 1) {
+    for (y = 0; y < grid_y; y += 1) {
         int x;
 
-        for (x = 1; x < grid_x - 1; x += 1) {
+        for (x = 0; x < grid_x; x += 1) {
             printf ("%c", g[y][x] ? live_cell : dead_cell);
         }
         printf ("\n");
@@ -257,8 +257,8 @@ main (int argc, char *argv[])
     /**
      * full grid has a dead border
      */
-    grid_y = visible_y + 2;
-    grid_x = visible_x + 2;
+    grid_y = 1 + visible_y + 1;
+    grid_x = 1 + visible_x + 1;
 
     old_grid = allocate_grid();
     new_grid = allocate_grid();
@@ -266,7 +266,7 @@ main (int argc, char *argv[])
     from = old_grid;
     to = new_grid;
 
-    zero_grid (from);
+    zero_full_grid (from);
 
     /**
      * allow user to choose how to initialize in future
@@ -278,7 +278,7 @@ main (int argc, char *argv[])
     for (iter = 0; iter != iterations; iter += 1) {
         system ("clear");  /* should we use curses or similar here? */
 
-        show_visible_grid (from);
+        show_full_grid (from);
 
         usleep (sleep_update_us);
 
