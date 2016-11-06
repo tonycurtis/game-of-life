@@ -1,8 +1,11 @@
-CC     = gcc
-LD     = $(CC)
-OPENMP = -fopenmp
-CFLAGS = -Wall -pedantic -ggdb -O3 $(OPENMP)
-LDFLAGS = $(OPENMP)
+CC       = gcc
+LD       = $(CC)
+OPENMP   = -fopenmp
+DEBUG    = -ggdb
+OPTIMIZE = -O3
+LDFLAGS  = $(DEBUG) $(OPTIMIZE) $(OPENMP)
+STRIDENT = -Wall -pedantic
+CFLAGS   = $(STRIDENT) $(LDFLAGS)
 
 life:	life.o
 	$(LD) $(LDFLAGS) -o $@ $^
