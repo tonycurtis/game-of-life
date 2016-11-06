@@ -33,6 +33,17 @@ static int grid_x;
 static char *progname;
 
 /**
+ * colorize cells
+ */
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
+/**
  * allocate memory for an entire grid
  */
 static
@@ -41,10 +52,10 @@ allocate_grid (void)
 {
     int y;
 
-    int **g = malloc (sizeof (*g) * grid_y);
+    int **g = (int **) malloc (sizeof (*g) * grid_y);
 
     for (y = 0; y < grid_y; y += 1) {
-        g[y] = malloc (sizeof (**g) * grid_x);
+        g[y] = (int *) malloc (sizeof (**g) * grid_x);
     }
 
     return g;
@@ -98,7 +109,7 @@ randomize_visible_grid (int **g)
  */
 static
 void
-load_visible_grid (char *filename, int **g)
+load_visible_grid (const char *filename, int **g)
 {
     FILE *fp = fopen (filename, "r"); /* unchecked */
     char buf[64];
@@ -116,7 +127,7 @@ load_visible_grid (char *filename, int **g)
 static
 inline
 void
-update_visible_grid (int **old, int **new)
+update_visible_grid (int **old, int **new_g)
 {
     int y;
 
@@ -132,14 +143,17 @@ update_visible_grid (int **old, int **new)
             const int n = prn + srn + nrn;
 
             if (old[y][x]) {    /* currently alive, 2-3 neighbors stay alive */
-                new[y][x] = ((n == 2) || (n == 3)) ? 1 : 0;
+                new_g[y][x] = ((n == 2) || (n == 3)) ? 1 : 0;
             }
             else {              /* currently dead, 3 neighbors come alive */
-                new[y][x] = (n == 3) ? 1 : 0;
+                new_g[y][x] = (n == 3) ? 1 : 0;
             }
         }
     }
 }
+
+static const char *live_color = ANSI_COLOR_YELLOW;
+static const char *dead_color = ANSI_COLOR_BLUE;
 
 static
 inline
@@ -152,7 +166,12 @@ show_full_grid (int **g)
         int x;
 
         for (x = 0; x < grid_x; x += 1) {
-            printf ("%c", g[y][x] ? live_cell : dead_cell);
+            if (g[y][x]) {
+                printf ("%s%c" ANSI_COLOR_RESET, live_color, live_cell);
+            }
+            else {
+                printf("%s%c" ANSI_COLOR_RESET, dead_color, dead_cell);
+            }
         }
         printf ("\n");
     }

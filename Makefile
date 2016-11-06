@@ -1,7 +1,7 @@
 CC     = gcc
 LD     = $(CC)
 OPENMP = -fopenmp
-CFLAGS = -ggdb -O3 $(OPENMP)
+CFLAGS = -Wall -pedantic -ggdb -O3 $(OPENMP)
 LDFLAGS = $(OPENMP)
 
 life:	life.o
