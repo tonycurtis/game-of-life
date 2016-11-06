@@ -291,8 +291,10 @@ main (int argc, char *argv[])
      * allow user to choose how to initialize in future
      */
     randomize_visible_grid (from);
-    // beacon_grid (from);
-    // load_visible_grid ("glider.life", from);
+#if 0
+    beacon_grid (from);
+    load_visible_grid ("glider.life", from);
+#endif
 
     for (iter = 0; iter != iterations; iter += 1) {
         system ("clear");  /* should we use curses or similar here? */
